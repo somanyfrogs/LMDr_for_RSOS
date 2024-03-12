@@ -1,0 +1,30 @@
+Package: andsr
+Title: Analysis of Nonlinear Dynamical Systems in R (andsr)
+Version: 0.0.2.0000
+Authors@R: 
+    person(given = "xxxx",
+           family = "xxxx",
+           email = "xxxx@xxxx.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "xxxx-xxxx-xxxx-xxxx"))
+Description: A compilation of analysis of nonlinear dynamical systems in R.
+    This package consists of the functions of nonlinear time-series analysis.
+    andsr will be applicable to diverse objectives, including nonlinear time-series
+    forecasting, system identification and stability analysis.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+LinkingTo: 
+    BH, Rcpp, RcppEigen
+Imports: 
+    doParallel,
+    dplyr,
+    foreach,
+    glmnet,
+    magrittr,
+    Rcpp,
+    rEDM,
+    rlang,
+    stringr,
+    tibble
