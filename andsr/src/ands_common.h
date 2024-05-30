@@ -141,4 +141,13 @@ private:
     boost::variate_generator<boost::mt19937, Dist> rng;
 };
 
+// Class for sorting
+class PrInc
+{
+public:
+    bool operator()(const std::pair<int, double> left, const std::pair<int, double> right) {
+        return left.second < right.second;
+    }
+};
+
 #endif
