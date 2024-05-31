@@ -22,60 +22,60 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // getPred
-Eigen::VectorXd getPred(const Eigen::MatrixXd& C, const Eigen::MatrixXd& X);
+VectorXd getPred(const MatrixXd& C, const MatrixXd& X);
 RcppExport SEXP _andsr_getPred(SEXP CSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type C(CSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type C(CSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(getPred(C, X));
     return rcpp_result_gen;
 END_RCPP
 }
 // getRMSE
-double getRMSE(const Eigen::VectorXd& v1, const Eigen::VectorXd& v2);
+double getRMSE(const VectorXd& v1, const VectorXd& v2);
 RcppExport SEXP _andsr_getRMSE(SEXP v1SEXP, SEXP v2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type v1(v1SEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type v2(v2SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type v1(v1SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type v2(v2SEXP);
     rcpp_result_gen = Rcpp::wrap(getRMSE(v1, v2));
     return rcpp_result_gen;
 END_RCPP
 }
 // getMAE
-double getMAE(const Eigen::VectorXd& v1, const Eigen::VectorXd& v2);
+double getMAE(const VectorXd& v1, const VectorXd& v2);
 RcppExport SEXP _andsr_getMAE(SEXP v1SEXP, SEXP v2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type v1(v1SEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type v2(v2SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type v1(v1SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type v2(v2SEXP);
     rcpp_result_gen = Rcpp::wrap(getMAE(v1, v2));
     return rcpp_result_gen;
 END_RCPP
 }
 // getRho
-double getRho(const Eigen::VectorXd& v1, const Eigen::VectorXd& v2);
+double getRho(const VectorXd& v1, const VectorXd& v2);
 RcppExport SEXP _andsr_getRho(SEXP v1SEXP, SEXP v2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type v1(v1SEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type v2(v2SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type v1(v1SEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type v2(v2SEXP);
     rcpp_result_gen = Rcpp::wrap(getRho(v1, v2));
     return rcpp_result_gen;
 END_RCPP
 }
 // getNEDist
-Eigen::MatrixXd getNEDist(const Eigen::MatrixXd& X);
+MatrixXd getNEDist(const MatrixXd& X);
 RcppExport SEXP _andsr_getNEDist(SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(getNEDist(X));
     return rcpp_result_gen;
 END_RCPP
@@ -93,24 +93,24 @@ BEGIN_RCPP
 END_RCPP
 }
 // getLMDist
-Eigen::MatrixXd getLMDist(const Eigen::MatrixXd& X, const Eigen::MatrixXd& theta);
+MatrixXd getLMDist(const MatrixXd& X, const MatrixXd& theta);
 RcppExport SEXP _andsr_getLMDist(SEXP XSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type theta(thetaSEXP);
     rcpp_result_gen = Rcpp::wrap(getLMDist(X, theta));
     return rcpp_result_gen;
 END_RCPP
 }
 // getOptHT
-size_t getOptHT(const Eigen::VectorXd& sv, size_t m, size_t n);
+size_t getOptHT(const VectorXd& sv, size_t m, size_t n);
 RcppExport SEXP _andsr_getOptHT(SEXP svSEXP, SEXP mSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type sv(svSEXP);
+    Rcpp::traits::input_parameter< const VectorXd& >::type sv(svSEXP);
     Rcpp::traits::input_parameter< size_t >::type m(mSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(getOptHT(sv, m, n));
@@ -118,67 +118,67 @@ BEGIN_RCPP
 END_RCPP
 }
 // smapSVD
-Eigen::MatrixXd smapSVD(const Eigen::MatrixXd& X, const Eigen::RowVectorXd& y, const Eigen::MatrixXd& wmat);
+MatrixXd smapSVD(const MatrixXd& X, const RowVectorXd& y, const MatrixXd& wmat);
 RcppExport SEXP _andsr_smapSVD(SEXP XSEXP, SEXP ySEXP, SEXP wmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::RowVectorXd& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type wmat(wmatSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const RowVectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type wmat(wmatSEXP);
     rcpp_result_gen = Rcpp::wrap(smapSVD(X, y, wmat));
     return rcpp_result_gen;
 END_RCPP
 }
 // smapRidge
-Eigen::MatrixXd smapRidge(const Eigen::MatrixXd& X, const Eigen::RowVectorXd& y, const Eigen::MatrixXd& wmat, double lambda);
+MatrixXd smapRidge(const MatrixXd& X, const RowVectorXd& y, const MatrixXd& wmat, double lambda);
 RcppExport SEXP _andsr_smapRidge(SEXP XSEXP, SEXP ySEXP, SEXP wmatSEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::RowVectorXd& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type wmat(wmatSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const RowVectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type wmat(wmatSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     rcpp_result_gen = Rcpp::wrap(smapRidge(X, y, wmat, lambda));
     return rcpp_result_gen;
 END_RCPP
 }
 // lmdSmplx
-Eigen::VectorXd lmdSmplx(const Eigen::MatrixXd& X, const Eigen::RowVectorXd& y, const Eigen::MatrixXd& dmat, const std::vector<size_t>& idxLib, const std::vector<size_t>& idxPrd, size_t nns);
+VectorXd lmdSmplx(const MatrixXd& X, const RowVectorXd& y, const MatrixXd& dmat, const vector<size_t>& idxLib, const vector<size_t>& idxPrd, size_t nns);
 RcppExport SEXP _andsr_lmdSmplx(SEXP XSEXP, SEXP ySEXP, SEXP dmatSEXP, SEXP idxLibSEXP, SEXP idxPrdSEXP, SEXP nnsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::RowVectorXd& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type dmat(dmatSEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type idxLib(idxLibSEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type idxPrd(idxPrdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const RowVectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type dmat(dmatSEXP);
+    Rcpp::traits::input_parameter< const vector<size_t>& >::type idxLib(idxLibSEXP);
+    Rcpp::traits::input_parameter< const vector<size_t>& >::type idxPrd(idxPrdSEXP);
     Rcpp::traits::input_parameter< size_t >::type nns(nnsSEXP);
     rcpp_result_gen = Rcpp::wrap(lmdSmplx(X, y, dmat, idxLib, idxPrd, nns));
     return rcpp_result_gen;
 END_RCPP
 }
 // lmdSMap
-Eigen::MatrixXd lmdSMap(const Eigen::MatrixXd& X, const Eigen::RowVectorXd& y, const std::vector<size_t>& idxLib, const std::vector<size_t>& idxPrd, int method, const Eigen::MatrixXd& theta, double lambda);
+MatrixXd lmdSMap(const MatrixXd& X, const RowVectorXd& y, const vector<size_t>& idxLib, const vector<size_t>& idxPrd, int method, const MatrixXd& theta, double lambda);
 RcppExport SEXP _andsr_lmdSMap(SEXP XSEXP, SEXP ySEXP, SEXP idxLibSEXP, SEXP idxPrdSEXP, SEXP methodSEXP, SEXP thetaSEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::RowVectorXd& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type idxLib(idxLibSEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type idxPrd(idxPrdSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const RowVectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const vector<size_t>& >::type idxLib(idxLibSEXP);
+    Rcpp::traits::input_parameter< const vector<size_t>& >::type idxPrd(idxPrdSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     rcpp_result_gen = Rcpp::wrap(lmdSMap(X, y, idxLib, idxPrd, method, theta, lambda));
     return rcpp_result_gen;
 END_RCPP
 }
 // funcTPSA
-List funcTPSA(int gSeed, size_t threadNo, size_t iterLim, size_t tsLength, int criterion, int method, int diag, const std::vector<double>& sigmas, const std::vector<double>& temps, const Eigen::MatrixXd& X, const Eigen::RowVectorXd& y, const std::vector<size_t>& idxLib, const std::vector<size_t>& idxPrd);
+List funcTPSA(int gSeed, size_t threadNo, size_t iterLim, size_t tsLength, int criterion, int method, int diag, const vector<double>& sigmas, const vector<double>& temps, const MatrixXd& X, const RowVectorXd& y, const vector<size_t>& idxLib, const vector<size_t>& idxPrd);
 RcppExport SEXP _andsr_funcTPSA(SEXP gSeedSEXP, SEXP threadNoSEXP, SEXP iterLimSEXP, SEXP tsLengthSEXP, SEXP criterionSEXP, SEXP methodSEXP, SEXP diagSEXP, SEXP sigmasSEXP, SEXP tempsSEXP, SEXP XSEXP, SEXP ySEXP, SEXP idxLibSEXP, SEXP idxPrdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -190,12 +190,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type criterion(criterionSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
     Rcpp::traits::input_parameter< int >::type diag(diagSEXP);
-    Rcpp::traits::input_parameter< const std::vector<double>& >::type sigmas(sigmasSEXP);
-    Rcpp::traits::input_parameter< const std::vector<double>& >::type temps(tempsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::RowVectorXd& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type idxLib(idxLibSEXP);
-    Rcpp::traits::input_parameter< const std::vector<size_t>& >::type idxPrd(idxPrdSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type sigmas(sigmasSEXP);
+    Rcpp::traits::input_parameter< const vector<double>& >::type temps(tempsSEXP);
+    Rcpp::traits::input_parameter< const MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const RowVectorXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const vector<size_t>& >::type idxLib(idxLibSEXP);
+    Rcpp::traits::input_parameter< const vector<size_t>& >::type idxPrd(idxPrdSEXP);
     rcpp_result_gen = Rcpp::wrap(funcTPSA(gSeed, threadNo, iterLim, tsLength, criterion, method, diag, sigmas, temps, X, y, idxLib, idxPrd));
     return rcpp_result_gen;
 END_RCPP

@@ -24,6 +24,7 @@ getNEDist <- function(X) {
 getGeodesDist <- function(dmat, k) {
     .Call(`_andsr_getGeodesDist`, dmat, k)
 }
+
 getLMDist <- function(X, theta) {
     .Call(`_andsr_getLMDist`, X, theta)
 }

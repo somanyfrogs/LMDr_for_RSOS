@@ -107,6 +107,15 @@ Eigen::MatrixXd getGeodesDist(const Eigen::MatrixXd& dmat, size_t k);
 
 Eigen::MatrixXd getLMDist(const Eigen::MatrixXd& X, const Eigen::MatrixXd& theta);
 
+// Function objects for increasing sorting.
+class PrInc
+{
+    public:
+        bool operator()(const std::pair<size_t, double> left, const std::pair<size_t, double> right){
+            return left.second < right.second;
+        }
+};
+
 // Class for boost RND with uniform_real.
 class RngUnif
 {
@@ -139,15 +148,6 @@ public:
 private:
     typedef boost::normal_distribution<> Dist;
     boost::variate_generator<boost::mt19937, Dist> rng;
-};
-
-// Class for sorting
-class PrInc
-{
-public:
-    bool operator()(const std::pair<int, double> left, const std::pair<int, double> right) {
-        return left.second < right.second;
-    }
 };
 
 #endif

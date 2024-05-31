@@ -2,7 +2,7 @@
 #' @description R function file for 'andsr' (Analysis of Nonlinear Dynamical Systems in R).
 #'      This file contains functions related to nonlinear time-series analysis.
 #'      Initially written on 20210706 by K.Kawatsu.
-#'      Last update: 20220502.
+#'      Last update: 20240531.
 
 #' Find knot positions in data
 #'
@@ -29,6 +29,7 @@ find_knot <- function(ts, key_col = NULL, time_col = 1, diff = 1) {
 #' \code{gen_valid_idx} retunrs a vector, which contains positions of valid row positions in knot.
 #' @param knot vector or 2-column matrix, which specifies the knot position in data matrix.
 #' @param idx_all A vector contains valid position in the whole data matrix.
+#' @export
 gen_valid_idx <- function(knot, idx_all) {
     tmp <- foreach(i = 1:nrow(knot), .combine = c) %do% knot[i, 1]:knot[i, 2]
     return(tmp[tmp %in% idx_all])
@@ -46,14 +47,14 @@ gen_valid_idx <- function(knot, idx_all) {
 #' @param knot vector or 2-column matrix, which specifies the knot position in ts.
 #' @export
 gen_emat <- function(ts, cols, lags, knot = matrix(c(1, nrow(ts)), nrow = 1)) {
-    ### Check whether knot is provided appropriately
+    ## Check whether knot is provided appropriately
     if(!is.matrix(knot)) knot <- matrix(knot, nrow = 1)
     if(ncol(knot) != 2) stop("Inappropriate style knot!")
 
-    ### Check wheter ts is provided appropriately
+    ## Check wheter ts is provided appropriately
     if(!is_tibble(ts)) {
         if(!(is.data.frame(ts) | is.matrix(ts))) ts <- matrix(ts, ncol = 1)
-        ts <- ts %>% set_cnames(str_c("x", 1:ncol(.))) %>% as_tibble()
+        ts <- ts |> as_tibbler(str_c("x", 1:ncol(ts)))
     }
 
     emat <- matrix(NA, nrow = max(knot) - min(knot) + 1, ncol = length(cols))
@@ -62,7 +63,7 @@ gen_emat <- function(ts, cols, lags, knot = matrix(c(1, nrow(ts)), nrow = 1)) {
         idx <- knot[i, 1]:knot[i, 2]
 
         for(j in 1:length(cols)) {
-            tmp <- ts %>% slice(idx) %>% pull(cols[j])
+            tmp <- ts |> slice(idx) |> pull(cols[j])
             emat[idx, j] <- shift(tmp, lags[j])
         }
     }
@@ -70,29 +71,70 @@ gen_emat <- function(ts, cols, lags, knot = matrix(c(1, nrow(ts)), nrow = 1)) {
     return(emat)
 }
 
+#' Wrapper of Multiview in rEDM
+#'
+#' \code{multiview} returns the results of multiview-embedding.
+#' For more details, see \code{\link[rEDM]{Multiview}}
+#' 
+#' @param ts vector, matrix, data.frame or tibble
+#'      which contains time series to make an embedding matrix.
+#' @param cols Numeric or character vector,
+#'      which selects the ts's column for the embedding matrix reconstruction.
+#' @param tar Integer or Strings, which sets the columns to be predicted.
+#' @param lib Vector or 2-column matrix, which sets the knot positions in library data.
+#' @param pred Vector or 2-column matrix, which sets the knot positions in predition data.
+#' @param E Integer, which sets the embedding dimension.
+#' @param Tp Integer, which sets the prediction-time horizon.
+#' @param lmax Integer, which sets the maximum value of timelags.
+#' @param threadNo Integer, which is the No. of cores used for parallel computing.
+#' @export
+multiview <- function(ts, cols, tar = 1, lib = matrix(c(1, nrow(ts)), nrow = 1), pred = NULL, E, Tp = 1, lmax, threadNo = detectCores()) {
+    ## Check whether lib is provided appropriately
+    if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
+    if(ncol(lib) != 2) stop("Inappropriate style lib provided!")
+    if(is.null(pred)) pred <- lib
+
+    ## Perform MVD (Multiview Embedding) with rEDM::Multiview
+    if(is.matrix(ts)) {
+        if(!is.numeric(cols)) stop("Provided 'cols' as columns' positions for matrix data!")
+        dataFrame <- ts[, cols] |> as_tibbler(str_c("x", cols)) |> mutate(Index = 1:nrow(ts), .before = everything())
+        cols <- str_c("x", cols)
+    } else {
+        dataFrame <- ts |> select(all_of(cols)) |> mutate(Index = 1:nrow(ts), .before = everything())
+    }
+
+    columns <- str_c(cols, collapse = " ")
+    target <- ifelse(is.numeric(tar), cols[tar], tar)
+    rEDM::Multiview(dataFrame = dataFrame, lib = lib, pred = pred, D = E, E = lmax, Tp = Tp, columns = columns, target = target, numThreads = threadNo)
+}
+
 #' Calculation of Multiview-Distance (MVD) matrix
 #'
 #' \code{get_mvd} returns MVD matrix calculated with an ensemble of euclidean
 #'      distance matrix of the top-k embeeding in multivariate simplex projection.
 #' Algorithm is adopted from Chang et al. (2021), Ecol Lett.
-#' For more details, see also \code{\link[rEDM]{multiview}}.
+#' For more details, see also \code{\link[rEDM]{Multiview}}.
 #'
 #' @inheritParams gen_emat
-#' @param E Integer, which sets the embedding dimension.
-#' @param Tp Integer, which sets the prediction-time horizon.
-#' @param lmax Integer, which sets the maximum value of timelags.
-#' @param threadNo Integer, which is the No. of cores used for parallel computing.
+#' @inheritParams multiview
 #' @export
 get_mvd <- function(ts, cols, tar = 1, knot = matrix(c(1, nrow(ts)), nrow = 1), E, Tp = 1, lmax, threadNo = detectCores()) {
     ## Check whether knot is provided appropriately
     if(!is.matrix(knot)) knot <- matrix(knot, nrow = 1)
     if(ncol(knot) != 2) stop("Inappropriate style knot provided!")
 
-    ## Perform MVE (Multiview Embedding) with rEDM::Multiview
+    ## Perform MVD (Multiview Embedding) with rEDM::Multiview
+    if(is.matrix(ts)) {
+        if(!is.numeric(cols)) stop("Provided 'cols' as columns' positions for matrix data!")
+        dataFrame <- ts[, cols] |> as_tibbler(str_c("x", cols)) |> mutate(Index = 1:nrow(ts), .before = everything())
+        cols <- str_c("x", cols)
+    } else {
+        dataFrame <- ts |> select(all_of(cols)) |> mutate(Index = 1:nrow(ts), .before = everything())
+    }
+
     columns <- str_c(cols, collapse = " ")
-    target <- if_else(is.numeric(tar), columns[tar], tar)
-    mve <- ts |> select(all_of(cols)) |> mutate(Index = 1:nrow(ts), .before = everything()) |>
-        rEDM::Multiview(dataFrame = _, lib = knot, pred = knot, D = E, E = lmax, Tp = Tp, columns = columns, target = target, parameterList = TRUE, numThreads = threadNo)
+    target <- ifelse(is.numeric(tar), cols[tar], tar)
+    mve <- rEDM::Multiview(dataFrame = dataFrame, lib = knot, pred = knot, D = E, E = lmax, Tp = Tp, columns = columns, target = target, numThreads = threadNo)
 
     ## Summarize MVE result
     wc <- mve$View |> dplyr::transmute(rho = rho / sum(rho)) |> pull(rho)
@@ -105,12 +147,49 @@ get_mvd <- function(ts, cols, tar = 1, knot = matrix(c(1, nrow(ts)), nrow = 1), 
     on.exit(stopCluster(cl))
 
     mvd <- foreach(i = 1:nrow(cmbs), .combine = '+', .init = matrix(0, nrow = nrow(ts), ncol = nrow(ts))) %dopar% {
-        mi <- ts |> andsr::gen_emat(cols = cmbs[i, ], lags = lags[i, ], knot = knot)
+        mi <- dataFrame |> andsr::gen_emat(cols = cmbs[i, ], lags = lags[i, ], knot = knot)
         di <- andsr::get_ned(mi)
         wc[i] * di
     }
 
     return(mvd)
+}
+
+#' R wrapper function of lmdSmplx in ands_ntsa.cpp version 2
+#'
+#' @param X A matrix, which is constructed by the function \code{\link{gen_emat}}.
+#' @param col Integer, which specifides the position of prediction target in ts.
+#' @param lib Vector or 2-column matrix, which sets the knot positions in library data.
+#' @param pred Vector or 2-column matrix, which sets the knot position in test data.
+#' @param Tp Integer, which is the prediction-time horizon.
+#' @param dmat A distant matrix to identify neighorhood relationshiop.
+#' @export
+smplx <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NULL, Tp = 1, dmat = NULL) {
+    ## Check whether lib is provided appropriately
+    if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
+    if(ncol(lib) != 2) stop("Inappropriate lib!")
+
+    if(is.null(pred)) {
+        knot <- lib
+        pred <- lib
+    } else {
+        knot <- rbind(lib, pred)
+    }
+
+    if(nrow(X) != max(knot) - min(knot) + 1) X <- X |> gen_emat(cols = 1:ncol(X), lags = rep(0, ncol(X)), knot = knot)
+    if(is.null(dmat) | all(is.na(dmat))) dmat <- get_ned(X)
+
+    dim <- dim(X)
+    y <- X |> gen_emat(cols = col, lags = Tp, knot = knot)
+    y_ <- rep(NA, nrow(X))
+
+    idx_all <- cbind(y, X) |> complete.cases() |> (\(.x) .x & apply(dmat, 1, \(r) sum(is.na(r)) != dim[1] - 1))() |> which()
+    idx_l <- gen_valid_idx(lib, idx_all)
+    idx_p <- gen_valid_idx(pred, idx_all)
+
+    y_[idx_p] <- lmdSmplx(X, y, dmat, idx_l - 1, idx_p - 1, dim[2] + 1)
+    output <- tibble(obs = y, pred = y_) |> list()
+    tibble(rho = get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output)
 }
 
 #' R wrapper function of lmdSmplx in ands_ntsa.cpp
@@ -123,6 +202,7 @@ get_mvd <- function(ts, cols, tar = 1, knot = matrix(c(1, nrow(ts)), nrow = 1), 
 #' @param E Integer, embedding dimension.
 #' @param Tp Integer, which is the prediction-time horizon.
 #' @param theta A matrix, where each element controls the locality of coordinates in ts.
+#' @param both Logical, determine whether backward prediction is performed.
 #' @export
 LMDsmplx <- function(ts, col, lib = matrix(c(1, nrow(ts)), nrow = 1), pred = NULL, E, Tp = 1, theta = NULL, both = TRUE) {
     ## Check whether lib is provided appropriately
@@ -157,7 +237,7 @@ LMDsmplx <- function(ts, col, lib = matrix(c(1, nrow(ts)), nrow = 1), pred = NUL
 
     fwd <- smplx(Tp) |> shift(-Tp)
 
-    if (both) {
+    if(both) {
         bwd <- smplx(-Tp) |> shift(Tp)
         fwd <- cbind(fwd, bwd) |> rowMeans(na.rm = TRUE)
     }
@@ -171,6 +251,7 @@ LMDsmplx <- function(ts, col, lib = matrix(c(1, nrow(ts)), nrow = 1), pred = NUL
 #'
 #' \code{find_best_dim} returns the best embedding dimension.
 #' @inheritParams LMDsmplx
+#' @param cols A vector, which sets the columns to be analyzed.
 #' @param range Integer vector, which sets the range of dimension search.
 #' @param Tps Integer vector, which setse the prediction time horison for each variable.
 #' @param criterion Strings, which switches the cost function (Rho, MAE or RMSE)
@@ -226,6 +307,33 @@ find_best_dim <- function(ts, cols, lib = matrix(c(1, nrow(ts)), nrow = 1), pred
         mutate(rho = -rho, var = factor(var, levels = cols)) |> ungroup() |> select(var, Tp, E, rho, mae, rmse) |> arrange(var)
 }
 
+#' R wrapper function of smapSVD in ands_ntsa.cpp
+#'
+#' @param X A matrix, which is constructed by the function \code{\link{gen_emat}}.
+#' @param y A vector, which is constructed by the function \code{\link{gen_emat}}.
+#' @param idx_l A vector specifying valid positions in library IDs.
+#' @param idx_p A vector specifying valid positions in prediction IDs.
+#' @param coef A matrix storing model coefficients. 
+#' @param D A distant matrix.
+#' @param theta A uniform localization parameter.
+#' @export
+smap <- function(X, y, idx_l, idx_p, coef, D, theta) {
+    tryCatch({
+        wmat <- exp(-theta * D / rowMeans(D[, idx_l], na.rm = TRUE)) |> (\(.x) .x - diag(diag(.x)))()
+
+        ## Sequential estimation of Jacobian
+        coef[idx_p, ] <- smapSVD(cbind(X, 1)[idx_l, ], y[idx_l, ], wmat[idx_p, idx_l])
+        y_ <- getPred(coef, cbind(X, 1))
+        output <- tibble(obs = as.numeric(y), pred = y_) |> list()
+        coef <- coef |> as_tibbler(str_c("C", c(1:ncol(X), 0))) |> list()
+        tibble(rho = -get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output, coef = coef)
+    }, error = function(e) {
+        output <- tibble(obs = as.numeric(y), pred = NA) |> list()
+        coef <- coef |> as_tibbler(str_c("C", c(1:ncol(X), 0))) |> list()
+        tibble(rho = NA, mae = NA, rmse = NA, output = output, coef = coef)
+    })
+}
+
 #' S-map with elastic net (a.k.a. Regularized S-map)
 #'
 #' \code{smap_net} returns the (tibble) result of Regularized S-map.
@@ -250,24 +358,10 @@ find_best_dim <- function(ts, cols, lib = matrix(c(1, nrow(ts)), nrow = 1), pred
 #'      (for more detail, see original function \code{\link[glmnet]{cv.glmnet}}).
 #' @export
 smap_net <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NULL, Tp = 1, dmat = NULL, range = seq(0, 10, 1),
-                     seed = NULL, threadNo = detectCores(), criterion = "rmse", s = "lambda.1se", lambda = NULL, alpha = 0.0) {
-    ## Reinstate system seed after calculation
-    if(!is.null(seed)) {
-        sysSeed <- .GlobalEnv$.Random.seed
-        set.seed(seed)
-
-        on.exit({
-            if(!is.null(sysSeed)) {
-                .GlobalEnv$.Random.seed <- sysSeed
-            } else {
-                rm(".Random.seed", envir = .GlobalEnv)
-            }
-        })
-    }
-
+                     seed = NULL, threadNo = detectCores(), criterion = "rmse", s = "lambda.min", lambda = NULL, alpha = 0.0) {
     ## Check whether lib is provided appropriately
     if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
-    if(ncol(lib) != 2) stop("Inappropraite lib style!")
+    if(ncol(lib) != 2) stop("Inappropriate lib style!")
 
     if(is.null(pred)) {
         knot <- lib
@@ -276,7 +370,8 @@ smap_net <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = N
         knot <- rbind(lib, pred)
     }
 
-    if(is.null(dmat) | all(is.na(dmat))) dmat <- get_ned(X);
+    if(nrow(X) != max(knot) - min(knot) + 1) X <- X |> gen_emat(cols = 1:ncol(X), lags = rep(0, ncol(X)), knot = knot)
+    if(is.null(dmat) | all(is.na(dmat))) dmat <- get_ned(X)
 
     ## Preparation for Elastic-net analysis with R package 'glmnet'
     dim <- dim(X)
@@ -284,15 +379,13 @@ smap_net <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = N
     idx_all <- cbind(y, X) |> complete.cases() |> (\(.x) .x & apply(dmat, 1, \(r) sum(is.na(r)) != dim[1] - 1))() |> which()
     idx_l <- gen_valid_idx(lib, idx_all)
     idx_p <- gen_valid_idx(pred, idx_all)
-
     dbar <- rowMeans(dmat[, idx_l], na.rm = TRUE)
 
     ## Set environment for parallel computing
     cl <- makeCluster(spec = threadNo, type = "PSOCK")
+    clusterSetRNGStream(cl, seed)
     registerDoParallel(cl)
     on.exit(stopCluster(cl))
-
-    seeds <- sample(32768, dim[1], replace = TRUE)
 
     ## grid-search for best theta
     op <- foreach(theta = range, .combine = rbind) %dopar% {
@@ -304,20 +397,17 @@ smap_net <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = N
 
             ## Sequential estimation of Jacobian
             coef[idx_p, ] <- foreach(t = idx_p, .combine = rbind) %do% {
-                set.seed(seeds[t])
                 fit <- cv.glmnet(x = X[idx_l, ], y = y[idx_l], weights = wmat[t, idx_l], lambda = lambda, alpha = alpha)
                 coef(fit, s = s) |> as.numeric() |> (\(.x) .x[c(2:(dim[2] + 1), 1)])()
             }
 
             y_ <- getPred(coef, cbind(X, 1))
             output <- tibble(obs = as.numeric(y), pred = y_) |> list()
-            coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
-
-            tibble(theta = theta, rho = -get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_),
-                   output = output, coef = coef)
+            coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
+            tibble(theta = theta, rho = -get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output, coef = coef)
         }, error = function(e) {
             output <- tibble(obs = as.numeric(y), pred = NA) |> list()
-            coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
+            coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
             tibble(theta = theta, rho = NA, mae = NA, rmse = NA, output = output, coef = coef)
         })
     } |> arrange(!!!rlang::syms(criterion)) |> slice(1) |> mutate(rho = -rho)
@@ -334,7 +424,7 @@ smap_net <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = N
 #' @inheritParams smap_net
 #' @export
 smap_mulvar <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NULL, Tp = 1, dmat = NULL,
-                        range = seq(0, 10, 1), threadNo = detectCores(), criterion = "rmse") {
+                        range = seq(0, 10, 1), threadNo = detectCores(), criterion = "rmse", drop_dist = TRUE) {
     ## Check whether lib is provided approximately
     if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
     if(ncol(lib) != 2) stop("Inappropriate lib style!")
@@ -346,14 +436,16 @@ smap_mulvar <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred 
         knot <- rbind(lib, pred)
     }
 
+    if(nrow(X) != max(knot) - min(knot) + 1) X <- X |> gen_emat(cols = 1:ncol(X), lags = rep(0, ncol(X)), knot = knot)
+    if(is.null(dmat) | all(is.na(dmat))) dmat <- get_ned(X)
+
     ## Preparation for multivariate S-map analysis
     dim <- dim(X)
     y <- X |> gen_emat(cols = col, lags = Tp, knot = knot)
-    idx_all <- cbind(y, X) |> complete.cases() %>% which()
+    idx_all <- cbind(y, X) |> complete.cases() |> (\(.x) .x & apply(dmat, 1, \(r) sum(is.na(r)) != dim[1] - 1))() |> which()
     idx_l <- gen_valid_idx(lib, idx_all)
     idx_p <- gen_valid_idx(pred, idx_all)
 
-    if(is.null(dmat) | all(is.na(dmat))) dmat <- get_ned(X);
     dbar <- rowMeans(dmat[, idx_l], na.rm = TRUE)
 
     ## Set environment for parallel computing
@@ -373,17 +465,16 @@ smap_mulvar <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred 
             coef[idx_p, ] <- smapSVD(cbind(X, 1)[idx_l, ], y[idx_l], wmat[idx_p, idx_l])
             y_ <- getPred(coef, cbind(X, 1))
             output <- tibble(obs = as.numeric(y), pred = y_) |> list()
-            coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
-
-            tibble(theta = theta, rho = -get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_),
-                   output = output, coef = coef)
+            coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
+            tibble(theta = theta, rho = -get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output, coef = coef)
         }, error = function(e) {
             output <- tibble(obs = as.numeric(y), pred = NA) |> list()
-            coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
+            coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
             tibble(theta = theta, rho = NA, mae = NA, rmse = NA, output = output, coef = coef)
         })
     } |> arrange(!!!rlang::syms(criterion)) |> slice(1) |> mutate(rho = -rho)
 
+    if(!drop_dist) op <- op |> mutate(dist = list(dmat))
     return(op)
 }
 
@@ -411,6 +502,8 @@ LMDmap <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NUL
         knot <- rbind(lib, pred)
     }
 
+    if(nrow(X) != max(knot) - min(knot) + 1) X <- X |> gen_emat(cols = 1:ncol(X), lags = rep(0, ncol(X)), knot = knot)
+
     ## Preparation for LMD-based nonlinear regression
     dim <- dim(X)
     coef <- matrix(NA, nrow = dim[1], ncol = dim[2] + 1)
@@ -423,13 +516,11 @@ LMDmap <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NUL
         coef[idx_p, ] <- lmdSMap(cbind(X, 1), y, idx_l - 1, idx_p - 1, method, theta, lambda);
         y_ <- getPred(coef, cbind(X, 1))
         output <- tibble(obs = as.numeric(y), pred = y_) |> list()
-        coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
-
-        return(tibble(rho = get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_),
-                      output = output, coef = coef))
+        coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
+        return(tibble(rho = get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output, coef = coef))
     }, error = function(e) {
         output <- tibble(obs = as.numeric(y), pred = NA) |> list()
-        coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
+        coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
         return(tibble(rho = NA, mae = NA, rmse = NA, output = output, coef = coef))
     })
 }
@@ -445,13 +536,15 @@ LMDmap <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NUL
 #' @param threadNo Integer, which sets the No. of threads in 'funcTPSA'.
 #' @param iterLim Integer, the maximum iteration of TPSA.
 #' @param tsLength Integer, the time length in single SA run.
+#' @param criterion Strings, which switches the cost function (Rho, MAE or RMSE)
+#'      for the dimension search (default = "rmse").
 #' @param diag Integer, if 0, the algorithm seeks the optimal values for only diagonal elementse in Theta (default 0).
 #' @param sigmas Numeric vector, which sets the SD of normal_distribution used in 'funcTPSA'.
 #' @param temps Numeric vector, which sets the range of temperature used in 'funcTPSA'.
 #' @export
 find_best_theta <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NULL, Tp = 1,
                             gSeed = NA, threadNo = detectCores(), iterLim = 100, tsLength = 100,
-                            criterion = "rmse", method = 0, diag = 0, sigmas = c(1.0, 0.01), temps = c(1e-10, 1e-2)) {
+                            criterion = "rmse", method = 1, diag = 0, sigmas = c(1.0, 0.01), temps = c(1e-10, 1e-2)) {
     criterion <- case_when(criterion == "rmse" ~ 0, criterion == "mae" ~ 1, TRUE ~ 2)
     if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
     if(ncol(lib) != 2) stop("Inappropriate lib!");
@@ -462,6 +555,8 @@ find_best_theta <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), p
     } else {
         knot <- rbind(lib, pred)
     }
+
+    if(nrow(X) != max(knot) - min(knot) + 1) X <- X |> gen_emat(cols = 1:ncol(X), lags = rep(0, ncol(X)), knot = knot)
 
     ## Preparation for TPSA of LMD-based nonlinear regression
     dim <- dim(X)
@@ -479,10 +574,8 @@ find_best_theta <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), p
         coef[idx_p, ] <- lmdSMap(cbind(X, 1), y, idx_l - 1, idx_p - 1, method, op$Theta, op$Lambda)
         y_ <- getPred(coef, cbind(X, 1))
         output <- tibble(obs = as.numeric(y), pred = y_) |> list()
-        coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
-
-        return(tibble(theta = list(op$Theta), lambda = op$Lambda, rho = get_rho(y, y_),
-                      mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output, coef = coef))
+        coef <- coef |> as_tibbler(str_c("C", c(1:dim[2], 0))) |> list()
+        return(tibble(theta = list(op$Theta), lambda = op$Lambda, rho = get_rho(y, y_), mae = get_mae(y, y_), rmse = get_rmse(y, y_), output = output, coef = coef))
     }, error = function(e) {
         output <- tibble(obs = as.numeric(y), pred = NA) |> list()
         coef <- coef |> set_cnames(str_c("C", c(1:dim[2], 0))) |> as_tibble() |> list()
