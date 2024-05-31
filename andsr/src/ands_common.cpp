@@ -98,20 +98,20 @@ MatrixXd getNEDist(const MatrixXd& X) {
 
 // Calculate Geodesic Distance matrix.
 // [[Rcpp::export]]
-Eigen::MatrixXd getGeodesDist(const Eigen::MatrixXd& dmat, size_t k) {
+MatrixXd getGeodesDist(const MatrixXd& dmat, size_t k) {
     size_t m = dmat.rows(), cnt;
-    Eigen::MatrixXd kmat = Eigen::MatrixXd::Zero(m, m);
+    MatrixXd kmat = MatrixXd::Zero(m, m);
 
     // calculate KNN by data points
     for(size_t i = 0; i < m; ++i) {
         // sort by distance
-        std::vector<std::pair<size_t, double>> knn(m);
+        vector<pair<size_t, double>> knn(m);
 
         for(size_t j = 0; j < m; ++j) {
             knn[j] = std::pair<size_t, double>(j, dmat(i, j));
         }
 
-        std::sort(knn.begin(), knn.end(), PrInc());
+        sort(knn.begin(), knn.end(), PrInc());
 
         // crate a matrix
         cnt = 0;
