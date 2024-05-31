@@ -19,7 +19,7 @@ find_knot(ts, key_col = NULL, time_col = 1, diff = 1)
 R function file for 'andsr' (Analysis of Nonlinear Dynamical Systems in R).
 This file contains functions related to nonlinear time-series analysis.
 Initially written on 20210706 by K.Kawatsu.
-Last update: 20220502.
+Last update: 20240531.
 Find knot positions in data
 
 \code{find_knot} returns a 2-column matrix, where start and end point of an i'th knot in ts.

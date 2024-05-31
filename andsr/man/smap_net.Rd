@@ -15,7 +15,7 @@ smap_net(
   seed = NULL,
   threadNo = detectCores(),
   criterion = "rmse",
-  s = "lambda.1se",
+  s = "lambda.min",
   lambda = NULL,
   alpha = 0
 )

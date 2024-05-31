@@ -29,6 +29,8 @@ LMDsmplx(
 \item{Tp}{Integer, which is the prediction-time horizon.}
 
 \item{theta}{A matrix, where each element controls the locality of coordinates in ts.}
+
+\item{both}{Logical, determine whether backward prediction is performed.}
 }
 \description{
 \code{LMDsmplx} returns stats and predictions by LMD-based simplex projection.

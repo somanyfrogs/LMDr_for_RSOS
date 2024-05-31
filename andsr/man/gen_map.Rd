@@ -4,20 +4,18 @@
 \alias{gen_map}
 \title{Calculate discrete-time time series data}
 \usage{
-gen_map(x, func, params, len, p_noise = 0, o_noise = 0)
+gen_map(x_ini, fun, params, input = NULL, t_end, o_noise = 0)
 }
 \arguments{
-\item{x}{Numeric vector ,set initial states.}
+\item{x_ini}{A numeric vector, set the initial states.}
 
-\item{func}{Strings, which specifies the specific equation to be calculated.}
+\item{fun}{A functional object specifying the type of differential equation.}
 
-\item{params}{List, containing required parameters in 'func'.}
+\item{params}{A list containing required parameters in 'fun'.}
 
-\item{len}{Integer, the time-series length to be generated.}
+\item{t_end}{A double specifying the end time at the termination of calculation.}
 
-\item{p_noise}{Numeric, process-noise strength.}
-
-\item{o_noise}{Numeric, observation-error strength.}
+\item{o_noise}{A numeric, observation error strength/}
 }
 \description{
 Calculate discrete-time time series data

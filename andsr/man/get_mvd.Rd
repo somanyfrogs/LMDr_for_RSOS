@@ -7,9 +7,10 @@
 get_mvd(
   ts,
   cols,
+  tar = 1,
   knot = matrix(c(1, nrow(ts)), nrow = 1),
   E,
-  Tp,
+  Tp = 1,
   lmax,
   threadNo = detectCores()
 )
@@ -20,6 +21,8 @@ which contains time series to make an embedding matrix.}
 
 \item{cols}{Numeric or charactor vector,
 which selects the ts's column for the embedding matrix reconstruction.}
+
+\item{tar}{Integer or Strings, which sets the columns to be predicted.}
 
 \item{knot}{vector or 2-column matrix, which specifies the knot position in ts.}
 
@@ -35,5 +38,5 @@ which selects the ts's column for the embedding matrix reconstruction.}
 \code{get_mvd} returns MVD matrix calculated with an ensemble of euclidean
 distance matrix of the top-k embeeding in multivariate simplex projection.
 Algorithm is adopted from Chang et al. (2021), Ecol Lett.
-For more details, see also \code{\link[rEDM]{multiview}}.
+For more details, see also \code{\link[rEDM]{Multiview}}.
 }

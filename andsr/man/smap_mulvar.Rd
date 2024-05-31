@@ -13,7 +13,8 @@ smap_mulvar(
   dmat = NULL,
   range = seq(0, 10, 1),
   threadNo = detectCores(),
-  criterion = "rmse"
+  criterion = "rmse",
+  drop_dist = TRUE
 )
 }
 \arguments{

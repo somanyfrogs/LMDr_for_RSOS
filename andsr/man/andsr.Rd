@@ -2,13 +2,17 @@
 % Please edit documentation in R/andsr_package.R
 \docType{package}
 \name{andsr}
+\alias{andsr-package}
 \alias{andsr}
 \title{Applications of analysis of nonlinear dynamical systems in R.}
 \description{
 The \pkg{andsr} package is a new implementation of andsr methods,
-including the functions of nonlinear time-series analysis (ands_ntsa),
+including the functions of nonlinear time-series analysis.
 those of lyapunov exponent/vector analysis (ands_lyap) and
-those of controllability analysis (ands_ctrb).
 The \pkg{andsr} will be applicable to diverse purposes, including
-nonlinear time-series forecasting, system identification, stability and keystone analysis.
+nonlinear time-series forecasting, system identification and stability analysis.
+}
+\author{
+\strong{Maintainer}: xxxx xxxx \email{xxxx@xxxx.com} (\href{https://orcid.org/xxxx-xxxx-xxxx-xxxx}{ORCID})
+
 }

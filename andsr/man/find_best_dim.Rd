@@ -19,6 +19,8 @@ find_best_dim(
 \arguments{
 \item{ts}{A vector, matrix, data.frame or tibble, which contains time-series data.}
 
+\item{cols}{A vector, which sets the columns to be analyzed.}
+
 \item{lib}{Vector or 2-column matrix, which sets the knot positions in library data.}
 
 \item{pred}{Vector or 2-column matrix, which sets the knot position in test data.}
@@ -29,6 +31,8 @@ find_best_dim(
 
 \item{criterion}{Strings, which switches the cost function (Rho, MAE or RMSE)
 for the dimension search (default = "rmse").}
+
+\item{both}{Logical, determine whether backward prediction is performed.}
 
 \item{threadNo}{Integer, which sets the thread number of parallel computing.}
 }

@@ -4,18 +4,18 @@
 \alias{odeRK4}
 \title{ODE solver with 4-th order Runge-Kutta approximation}
 \usage{
-odeRK4(x, func, params, len, h = 0.01)
+odeRK4(x_ini, fun, params, input = NULL, t_end, h = 0.01)
 }
 \arguments{
-\item{x}{Numeric vector ,set initial states.}
+\item{x_ini}{A numeric vector, set the initial states.}
 
-\item{func}{Strings, which specifies the specific equation to be calculated.}
+\item{fun}{A functional object specifying the type of differential equation.}
 
-\item{params}{List, containing required parameters in 'func'.}
+\item{params}{A list containing required parameters in 'fun'.}
 
-\item{len}{Integer, the time-series length to be generated.}
+\item{t_end}{A double specifying the end time at the termination of calculation.}
 
-\item{h}{Numeric, time-step paramter in RK-approximation}
+\item{h}{A double, specifying integration time in RK-approximation.}
 }
 \description{
 ODE solver with 4-th order Runge-Kutta approximation

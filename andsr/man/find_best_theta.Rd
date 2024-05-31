@@ -15,7 +15,7 @@ find_best_theta(
   iterLim = 100,
   tsLength = 100,
   criterion = "rmse",
-  method = 0,
+  method = 1,
   diag = 0,
   sigmas = c(1, 0.01),
   temps = c(1e-10, 0.01)
@@ -39,6 +39,9 @@ find_best_theta(
 \item{iterLim}{Integer, the maximum iteration of TPSA.}
 
 \item{tsLength}{Integer, the time length in single SA run.}
+
+\item{criterion}{Strings, which switches the cost function (Rho, MAE or RMSE)
+for the dimension search (default = "rmse").}
 
 \item{method}{Integer, which switches the LMD-based mapping solver.
 If col == 0, y = C X is solved with SVD, otherwise is solved with L2 norm penelization.}
