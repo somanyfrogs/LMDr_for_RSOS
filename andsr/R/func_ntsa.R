@@ -358,7 +358,7 @@ smap <- function(X, y, idx_l, idx_p, coef, D, theta) {
 #'      (for more detail, see original function \code{\link[glmnet]{cv.glmnet}}).
 #' @export
 smap_net <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NULL, Tp = 1, dmat = NULL, range = seq(0, 10, 1),
-                     seed = NULL, threadNo = detectCores(), criterion = "rmse", s = "lambda.min", lambda = NULL, alpha = 0.0) {
+                     seed = NULL, threadNo = detectCores(), criterion = "rmse", s = "lambda.1se", lambda = NULL, alpha = 0.0) {
     ## Check whether lib is provided appropriately
     if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
     if(ncol(lib) != 2) stop("Inappropriate lib style!")
