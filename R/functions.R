@@ -2,7 +2,7 @@
 #' @description An R file describing common functions for the paper entitled:
 #'      "Local Manifold Distance regression: an estimation method for fluctuating biological interactions with empirical time series"
 #'      Initialy written on 20230822.
-#'      Last update: 20240214.
+#'      Last update: 20240530.
 
 ## Load dependent packages
 library(andsr)
@@ -178,80 +178,6 @@ predatorFRJ <- function(x, params) with(params, {
           c(e * a13 * x[3] / denom13 * (1 - k * a13 * x[1] / denom13), 0, r3 * (1 - x[3]) + e * a13 * x[1] / denom13 - x[3] * (r3 + e * a13 * g13 * x[1] / denom13^2)))
 })
 
-#' S-map with geodesic distance
-#'
-#' \code{smap_geodes} returns the results of S-map with geodesic distance
-#' Implementation is based on the algorithm in Qu et al. 2023, Ecol. Indic.
-#'
-#' @param X An embedding matrix.
-#' @param col An integer specifying the position of prediction target in X.
-#' @param lib A vector or 2-column matrix, which sets the knot positions in library data.
-#' @param pred A vector or 2-column matrix, which sets the knot positions in predition data.
-#' @param Tp An integer, the prediction-time horizon.
-#' @param krange An integer vector specifying number of neighbor points in reconstructing geodesic distance.
-#' @param dmat A distance matrix (If NULL, Normal-Euclidean distance is used for the analysis).
-#' @param seed An integer for the RNG seed.
-#' @param threadNo An integer specifying the number of threads of parallel computing.
-#' @param iter An integer specifying the iteration number.
-#' @param criterion A strings switching the criterion for the best model evaluation.
-#' @param inits A double vector specifying the initial values of delta and theta.
-#' @param sigmas A double vector specifyign the mutation rate of delta and theta.
-smap_geodes <- function(X, col = 1, lib = matrix(c(1, nrow(X)), nrow = 1), pred = NULL, Tp = 1,dmat = NULL, seed = NULL,
-                threadNo = detectCores(), iter = 100, criterion = "rmse", k_range = 1:10, inits = c(1, 1), sigmas = c(0.05, 0.01), drop_dist = TRUE) {
-    ## Check whether lib is provided approximately
-    if(!is.matrix(lib)) lib <- matrix(lib, nrow = 1)
-    if(ncol(lib) != 2) stop("Inappropriate lib style!")
-
-    if(is.null(pred)) {
-        knot <- lib
-        pred <- lib
-    } else {
-        knot <- rbind(lib, pred)
-    }
-
-    if(nrow(X) != max(knot) - min(knot) + 1) X <- X |> gen_emat(cols = 1:ncol(X), lags = rep(0, ncol(X)), knot = knot)
-    if(is.null(dmat) | all(is.na(dmat))) dmat <- get_ned(X)
-
-    ## Preparation for TPSA
-    dim <- dim(X)
-    coef <- matrix(NA, nrow = dim[1], ncol = dim[2] + 1)
-    y <- X |> gen_emat(cols = col, lags = Tp, knot = knot)
-    idx_all <- cbind(y, X) |> complete.cases() |> which()
-    idx_l <- gen_valid_idx(lib, idx_all)
-    idx_p <- gen_valid_idx(pred, idx_all)
-
-    ## Set environment for parallel computing
-    cl <- makeCluster(spec = threadNo, type = "PSOCK")
-    clusterSetRNGStream(cl, seed)
-    registerDoParallel(cl)
-    on.exit(stopCluster(cl))
-
-    op <- foreach(k = k_range, .combine = rbind, .packages = c("andsr", "foreach", "tidyverse")) %dopar% {
-        delta <- inits[1]
-        theta <- inits[2]
-        cur <- getGeodesDist(exp(delta * dmat) - 1, k = k) |> smap(X = X, y = y, idx_l = idx_l, idx_p = idx_p, coef = coef, D = _, theta = theta)
-
-        try({
-            for(i in 1:iter) {
-                d_nex <- abs(delta + rnorm(1, 0, sigmas[1]))
-                t_nex <- abs(theta + rnorm(1, 0, sigmas[2]))
-                nex <- getGeodesDist(exp(d_nex * dmat) - 1, k = k) |> smap(X = X, y = y, idx_l = idx_l, idx_p = idx_p, coef = coef, D = _, theta = t_nex)
-
-                if(pull(nex, criterion) < pull(cur, criterion)) {
-                    delta <- d_nex
-                    theta <- t_nex
-                    cur <- nex
-                }
-            }
-        }, silent = TRUE)
-
-        cur |> mutate(k = k, delta = delta, theta = theta, .before = everything())
-    } |> arrange(!!!rlang::syms(criterion)) |> slice(1) |> mutate(rho = -rho)
-
-    if(!drop_dist) op <- op |> mutate(dist = list(getGeodesDist(exp(op$delta * dmat) - 1, k = op$k)))
-    return(op)
-}
-
 #' Modified version of read_csv
 #'
 #' @param path A strings, setting the file path to be loaded from.
@@ -292,16 +218,16 @@ theme_st <- function(just = NULL, pos = NULL, lunit = 5.5) {
     mgn <- margin(0.5 * lunit, 0.5 * lunit, 0.5 * lunit, 0.5 * lunit)
 
     th <- theme_light() +
-        theme(axis.text = element_text(size = 5),
-              axis.title = element_text(size = 7),
+        theme(axis.text = element_text(size = 6),
+              axis.title = element_text(size = 8),
               legend.background = element_blank(),
               legend.key.size = unit(0.25, "cm"),
-              legend.text = element_text(size = 5),
-              legend.title = element_text(size = 5),
+              legend.text = element_text(size = 6),
+              legend.title = element_text(size = 6),
               panel.grid.minor = element_blank(),
-              plot.tag = element_text(size = 7),
-              plot.title = element_text(size = 7),
-              strip.text = element_text(size = 5, color = "black", margin = mgn))
+              plot.tag = element_text(size = 8),
+              plot.title = element_text(size = 8),
+              strip.text = element_text(size = 6, color = "black", margin = mgn))
 
     if(!is.null(just)) th <- th + theme(legend.justification = just)
     if(!is.null(pos)) th <- th + theme(legend.position = pos)

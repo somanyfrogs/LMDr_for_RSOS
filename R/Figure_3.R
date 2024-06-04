@@ -1,8 +1,8 @@
-#' @title Figure_2.R
+#' @title Figure_3.R
 #' @description Making figure 3 & 4 for the Paper entitled:
 #'      "Local-manifold-distance-based regression: An estimation method for quantifying dynamic biological interactions"
 #'      Initially written on 20230822.
-#'      Last update: 20240312.
+#'      Last update: 20240531.
 
 ## Load R functions
 source("R/functions.R")
@@ -373,18 +373,18 @@ stopCluster(cl)
 
 ## Make figure 3-4
 sim_1_1 <- read_csvr("output/sim_1_1.csv")
-sim_1_2 <- read_csvr("output/sim_1_2.csv")
+sim_1_2 <- read_csvr("output/sim_1_2.csv") |> filter(rho > 0.975)
 sim_1_3 <- read_csvr("output/sim_1_3.csv")
 sim_1_4 <- read_csvr("output/sim_1_4.csv")
 sim_1_5 <- read_csvr("output/sim_1_5.csv")
 
 sim <- bind_rows(sim_1_1, sim_1_2, sim_1_3, sim_1_4, sim_1_5) |> mutate(system = factor(system, levels = unique(system)), dist = factor(dist, levels = c("LMD", "Multiview", "Geodesic", "Euclidean")))
 
-gp1 <- sim |> filter(rmse <= 1.0) |> ggplot(aes(x = factor(o_noise), y = rmse, fill = dist)) + facet_grid(system ~ p_noise, scales = "free_y") + geom_boxplot(outlier.size = 0.5) +
-    ggsci::scale_fill_npg() + xlab(expression(paste("Observation error ", (sigma[obs])))) + ylab("RMSE") + theme_st(lunit = 2)
+gp1 <- sim |> ggplot(aes(x = factor(o_noise), y = rho_coef, fill = dist)) + facet_grid(system ~ p_noise, scales = "free_y") + geom_boxplot(outlier.size = 0.1, linewidth = 0.25) +
+    scale_fill_manual(values = ggsci::pal_jama()(4)[4:1]) + xlab(expression(paste("Observation error ", (sigma[obs])))) + ylab(expression(paste("Correlation coefficient ", rho))) + theme_st(lunit = 2)
 
-gp2 <- sim |> ggplot(aes(x = factor(o_noise), y = rho_coef, fill = dist)) + facet_grid(system ~ p_noise, scales = "free_y") + geom_boxplot(outlier.size = 0.5) +
-    ggsci::scale_fill_npg() + xlab(expression(paste("Observation error ", (sigma[obs])))) + ylab("Correlation coefficient") + theme_st(lunit = 2)
+gp2 <-sim |>  ggplot(aes(x = factor(o_noise), y = rho, fill = dist)) + facet_grid(system ~ p_noise, scales = "free_y") + geom_boxplot(outlier.size = 0.1, linewidth = 0.25) +
+   scale_fill_manual(values = ggsci::pal_jama()(4)[4:1]) + xlab(expression(paste("Observation error ", (sigma[obs])))) + ylab(expression(paste("Correlation coefficient ", rho))) + theme_st(lunit = 2)
 
-gp1 |> ggsaver("fig03", width = 11.0, height = 11.0, ext = "pdf")
-gp2 |> ggsaver("fig04", width = 11.0, height = 11.0, ext = "pdf")
+gp1 |> ggsaver("fig03", width = 14.0, height = 11.0, ext = "pdf")
+gp2 |> ggsaver("fig04", width = 14.0, height = 11.0, ext = "pdf")

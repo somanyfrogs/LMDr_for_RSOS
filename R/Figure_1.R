@@ -2,7 +2,7 @@
 #' @description Making figure 1 for the Paper entitled:
 #'      "Local-manifold-distance-based regression: An estimation method for quantifying dynamic biological interactions with empirical time series"
 #'      Initially written on 20230822.
-#'      Last update: 20240227.
+#'      Last update: 20240530.
 
 ## Load R functions
 source("R/functions.R")
@@ -22,12 +22,12 @@ param2 <- list(r1 = r1, r2 = r2, r3 = r3, k = k, e = e,
                a12 = 0.4, a13 = 0.4, g12 = 0.2, g13 = 1.0)
 
 ## Make figure 1a (Upper: Network graph)
-nodes <- tibble(id = str_c("x", 1:3), type = c(TRUE, FALSE, FALSE))
+nodes <- tibble(id = str_c("italic(x)[", 1:3, "]"), type = c(TRUE, FALSE, FALSE))
 edges <- tibble(From = c(2, 3), tp = c(1, 1))
 
 gp1 <- tbl_graph(nodes = nodes, edges = edges, directed = TRUE) |> ggraph(layout = "igraph", algorithm = "bipartite") +
     geom_edge_link(arrow = arrow(length = unit(2, "mm"), type = "closed"), end_cap = circle(4, "mm")) +
-    geom_node_point(size = 4, color = "antiquewhite") + geom_node_text(aes(label = id), size = 2) +
+    geom_node_point(size = 4, color = "antiquewhite") + geom_node_text(aes(label = id), size = 2, parse = TRUE) +
     scale_x_continuous(expand = rep(0.1, 2)) + scale_y_continuous(expand = rep(0.1, 2)) + labs(tag = expression((italic(a)))) +
     theme_wt1() + theme(panel.background = element_rect(color = "white"), panel.border = element_rect(color = "white"))
 
@@ -70,5 +70,5 @@ gp3 <- grid_ful |> ggplot(aes(x = x2, y = x3)) + facet_wrap(. ~ case, nrow = 1) 
     scale_x_continuous(expand = rep(2e-3, 2)) + scale_y_continuous(expand = rep(2e-3, 2)) + labs(tag = expression((italic(b)))) +
     xlab(expression(italic(x[2]))) + ylab(expression(italic(x[3]))) + theme_st(lunit = 2) + theme(axis.text = element_blank(), axis.ticks = element_blank())
 
-gp <- (gp1 / gp2 | gp3) + plot_layout(width = c(1, 3))
+gp <- ((gp1 / gp2 + plot_layout(height = c(2, 3))) | gp3) + plot_layout(width = c(1, 3))
 gp |> ggsaver("fig01", width = 17.3, height = 6, ext = "pdf")
