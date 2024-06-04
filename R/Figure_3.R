@@ -386,5 +386,5 @@ gp1 <- sim |> ggplot(aes(x = factor(o_noise), y = rho_coef, fill = dist)) + face
 gp2 <-sim |>  ggplot(aes(x = factor(o_noise), y = rho, fill = dist)) + facet_grid(system ~ p_noise, scales = "free_y") + geom_boxplot(outlier.size = 0.1, linewidth = 0.25) +
    scale_fill_manual(values = ggsci::pal_jama()(4)[4:1]) + xlab(expression(paste("Observation error ", (sigma[obs])))) + ylab(expression(paste("Correlation coefficient ", rho))) + theme_st(lunit = 2)
 
-gp1 |> ggsaver("fig03", width = 14.0, height = 11.0, ext = "pdf")
-gp2 |> ggsaver("fig04", width = 14.0, height = 11.0, ext = "pdf")
+gp1 |> ggsaver("fig03", width = 14.0, height = 11.0, ext = "eps")
+gp2 |> ggsaver("fig04", width = 14.0, height = 11.0, ext = "eps")

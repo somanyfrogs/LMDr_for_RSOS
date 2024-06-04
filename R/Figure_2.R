@@ -105,5 +105,5 @@ gp4 <- tmp |> pivot_longer(c(Euclidean, Geodesic, Multiview, LMD), names_to = "m
     xlab(expression(paste("Dissimilarity ||", italic(J[1][i](t)) - italic(J[1][i])(tar), "||"[2]))) + ylab(expression(log(italic(w[ij])))) + theme_st(lunit = 2)
 
 gp <- (gp1 + gp2 + plot_layout(width = c(1, 4))) / (gp3 + gp4 + plot_layout(width = c(1, 3))) + plot_layout(height = c(4, 5))
-gp |> ggsaver("fig02", width = 17.3, height = 8.8, ext = "pdf")
+gp |> ggsaver("fig02", width = 17.3, height = 8.8, ext = "eps")
 

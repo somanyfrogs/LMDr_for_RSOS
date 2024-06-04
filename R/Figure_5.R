@@ -78,7 +78,7 @@ gp2 <- sim2 |> group_by(method, tar, exp, run) |> summarize(across(everything(),
     stat_summary(data = sim3, aes(fill = method), geom = "point", fun = mean, shape = 23, color = "black") + ggsci::scale_color_npg() + ylab("Prediction skill (RMSE)") +
     labs(tag = expression((italic(b))), color = "method", fill = "method") + theme_st(lunit = 2) + theme(axis.title.x = element_blank())
 
-((gp1 / gp2) + plot_layout(guides = "collect")) |> ggsaver("fig05", width = 11, height = 10, ext = "pdf")
+((gp1 / gp2) + plot_layout(guides = "collect")) |> ggsaver("fig05", width = 11, height = 10, ext = "eps")
 
 gp3 <- sim2 |> filter(tar == "Pa") |> ggplot(aes(x = Pa, y = SI)) + facet_wrap(. ~ method) + geom_hline(yintercept = 0, linetype = 2, linewidth = 0.25) +
     geom_smooth(aes(fill = exp), method = "lm", formula = y ~ poly(x, degree = 2, raw = TRUE), color = NA, alpha = 0.8) +
@@ -100,5 +100,5 @@ gp6 <- sim2 |> filter(tar == "Dn") |> ggplot(aes(x = Dn, y = SI)) + facet_wrap(.
     geom_smooth(data = filter(sim3, tar == "Dn"), aes(color = exp), method = "lm", formula = y ~ poly(x, degree = 2, raw = TRUE), se = FALSE, linewidth = 0.25) +
     ggsci::scale_color_jama() + ggsci::scale_fill_jama() + scale_y_continuous(limits = c(0.0, 0.75), breaks = c(0, 0.5, 1.0)) + xlab(expression(paste("Scaled density ", (italic(Didinium))))) + ylab("Effect of Pa on Dn") + theme_st(lunit = 2)
 
-(((gp3 / gp5) | (gp4 / gp6)) + plot_layout(guides = "collect")) |> ggsaver("fig06", width = 17.3, height = 11, ext = "pdf")
+(((gp3 / gp5) | (gp4 / gp6)) + plot_layout(guides = "collect")) |> ggsaver("fig06", width = 17.3, height = 11, ext = "eps")
 

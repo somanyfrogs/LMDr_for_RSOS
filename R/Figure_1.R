@@ -71,4 +71,4 @@ gp3 <- grid_ful |> ggplot(aes(x = x2, y = x3)) + facet_wrap(. ~ case, nrow = 1) 
     xlab(expression(italic(x[2]))) + ylab(expression(italic(x[3]))) + theme_st(lunit = 2) + theme(axis.text = element_blank(), axis.ticks = element_blank())
 
 gp <- ((gp1 / gp2 + plot_layout(height = c(2, 3))) | gp3) + plot_layout(width = c(1, 3))
-gp |> ggsaver("fig01", width = 17.3, height = 6, ext = "pdf")
+gp |> ggsaver("fig01", width = 17.3, height = 6, ext = "eps")
